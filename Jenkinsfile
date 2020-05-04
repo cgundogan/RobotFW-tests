@@ -102,13 +102,14 @@ def stepTests(board, test)
 def parallelSteps (board, test) {
     return {
         node (board) {
-            customWorkspace "${env.JOB_NAME}"
             properties([disableConcurrentBuilds()])
-            catchError() {
-                stepPrintEnv(board, test)
-                stepReset(board, test)
-                //stepFlash(board, test)
-                //stepTests(board, test)
+            ws("${env.JOB_NAME}") {
+                catchError() {
+                    stepPrintEnv(board, test)
+                    //stepReset(board, test)
+                    //stepFlash(board, test)
+                    //stepTests(board, test)
+                }
             }
         }
     }
@@ -117,27 +118,28 @@ def parallelSteps (board, test) {
 // detect connected boards and available tests
 stage ("setup") {
     node ("master") {
-        customWorkspace "${env.JOB_NAME}"
         properties([disableConcurrentBuilds()])
-        stepClone()
-        stash name: 'sources'
-        // discover test applications
-        tests = sh(returnStdout: true,
-                   script:  """
-                                for dir in \$(find tests -maxdepth 1 -mindepth 1 -type d); do
-                                    [ -d \$dir/tests ] && { echo \$dir ; } || true
-                                done
-                            """).tokenize()
-        echo "run TESTS: " + tests.join(",")
-        // discover available boards
-        for (int i=0; i<nodes.size(); ++i) {
-            def nodeName = nodes[i];
-            node (nodeName) {
-                boards.push(env.BOARD)
+        ws("${env.JOB_NAME}") {
+            stepClone()
+            stash name: 'sources'
+            // discover test applications
+            tests = sh(returnStdout: true,
+                       script:  """
+                                    for dir in \$(find tests -maxdepth 1 -mindepth 1 -type d); do
+                                        [ -d \$dir/tests ] && { echo \$dir ; } || true
+                                    done
+                                """).tokenize()
+            echo "run TESTS: " + tests.join(",")
+            // discover available boards
+            for (int i=0; i<nodes.size(); ++i) {
+                def nodeName = nodes[i];
+                node (nodeName) {
+                    boards.push(env.BOARD)
+                }
             }
+            boards.unique()
+            echo "use BOARDS: " + boards.join(",")
         }
-        boards.unique()
-        echo "use BOARDS: " + boards.join(",")
     }
 }
 
