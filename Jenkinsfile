@@ -65,6 +65,7 @@ def stepPrepareWorkingDir()
 {
     deleteDir()
     unstash name: 'sources'
+    sh 'ls -alh'
 }
 
 def stepReset(board, test)
