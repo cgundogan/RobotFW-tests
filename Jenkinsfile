@@ -106,7 +106,7 @@ def parallelSteps (board, test) {
             properties([disableConcurrentBuilds()])
             catchError() {
                 stepPrintEnv(board, test)
-                //stepReset(board, test)
+                stepReset(board, test)
                 //stepFlash(board, test)
                 //stepTests(board, test)
             }
