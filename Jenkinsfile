@@ -134,7 +134,9 @@ stage ("setup") {
             for (int i=0; i<nodes.size(); ++i) {
                 def nodeName = nodes[i];
                 node (nodeName) {
-                    boards.push(env.BOARD)
+                    ws("${env.JOB_NAME}") {
+                        boards.push(env.BOARD)
+                    }
                 }
             }
             boards.unique()
@@ -147,7 +149,9 @@ for (int i=0; i<nodes.size(); ++i) {
      def nodeName = nodes[i];
      nodeMap[nodeName] = {
         node {
-           stepPrepareWorkingDir()
+           ws("${env.JOB_NAME}") {
+               stepPrepareWorkingDir()
+           }
         }
     }
 }
@@ -170,14 +174,16 @@ for(int i=0; i < tests.size(); i++) {
 
 stage('Notify') {
     node("master") {
-        def jobName = currentBuild.fullDisplayName
-        emailext (
-            body: '''${SCRIPT, template="groovy-html.template"}''',
-            mimeType: 'text/html',
-            subject: "${jobName}",
-            from: 'jenkins@riot-ci.inet.haw-hamburg.de',
-            to: '${DEFAULT_RECIPIENTS}',
-            replyTo: '${DEFAULT_RECIPIENTS}'
-        )
+        ws("${env.JOB_NAME}") {
+            def jobName = currentBuild.fullDisplayName
+            emailext (
+                body: '''${SCRIPT, template="groovy-html.template"}''',
+                mimeType: 'text/html',
+                subject: "${jobName}",
+                from: 'jenkins@riot-ci.inet.haw-hamburg.de',
+                to: '${DEFAULT_RECIPIENTS}',
+                replyTo: '${DEFAULT_RECIPIENTS}'
+            )
+        }
     }
 }
