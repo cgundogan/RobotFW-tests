@@ -102,6 +102,7 @@ def stepTests(board, test)
 def parallelSteps (board, test) {
     return {
         node (board) {
+            customWorkspace "${env.JOB_NAME}"
             properties([disableConcurrentBuilds()])
             catchError() {
                 stepPrintEnv(board, test)
@@ -116,6 +117,7 @@ def parallelSteps (board, test) {
 // detect connected boards and available tests
 stage ("setup") {
     node ("master") {
+        customWorkspace "${env.JOB_NAME}"
         properties([disableConcurrentBuilds()])
         stepClone()
         stash name: 'sources'
