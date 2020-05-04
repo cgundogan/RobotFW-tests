@@ -58,6 +58,7 @@ def stepClone()
 
 def stepPrintEnv(board, test)
 {
+    sh 'pwd'
     sh 'ls -alh'
     sh 'dist/tools/ci/print_environment.sh'
 }
@@ -66,6 +67,7 @@ def stepPrepareWorkingDir()
 {
     deleteDir()
     unstash name: 'sources'
+    sh 'pwd'
     sh 'ls -alh'
 }
 
