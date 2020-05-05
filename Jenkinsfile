@@ -103,7 +103,7 @@ def parallelSteps (board, test) {
     return {
         node (board) {
             properties([disableConcurrentBuilds()])
-            ws("${env.JOB_NAME}") {
+            dir("${env.JOB_NAME}") {
                 catchError() {
                     stepPrintEnv(board, test)
                     //stepReset(board, test)
@@ -119,7 +119,7 @@ def parallelSteps (board, test) {
 stage ("setup") {
     node ("master") {
         properties([disableConcurrentBuilds()])
-        ws("${env.JOB_NAME}") {
+        dir("${env.JOB_NAME}") {
             stepClone()
             stash name: 'sources'
             // discover test applications
@@ -134,7 +134,7 @@ stage ("setup") {
             for (int i=0; i<nodes.size(); ++i) {
                 def nodeName = nodes[i];
                 node (nodeName) {
-                    ws("${env.JOB_NAME}") {
+                    dir("${env.JOB_NAME}") {
                         boards.push(env.BOARD)
                     }
                 }
@@ -149,7 +149,7 @@ for (int i=0; i<nodes.size(); ++i) {
      def nodeName = nodes[i];
      nodeMap[nodeName] = {
         node {
-           ws("${env.JOB_NAME}") {
+           dir("${env.JOB_NAME}") {
                stepPrepareWorkingDir()
            }
         }
@@ -174,7 +174,7 @@ for(int i=0; i < tests.size(); i++) {
 
 stage('Notify') {
     node("master") {
-        ws("${env.JOB_NAME}") {
+        dir("${env.JOB_NAME}") {
             def jobName = currentBuild.fullDisplayName
             emailext (
                 body: '''${SCRIPT, template="groovy-html.template"}''',
