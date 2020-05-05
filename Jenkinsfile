@@ -66,6 +66,7 @@ def stepPrintEnv(board, test)
 def stepPrepareWorkingDir()
 {
     deleteDir()
+    sleep(5 * Math.random())
     unstash name: 'sources'
     sh 'pwd'
     sh 'ls -alh'
